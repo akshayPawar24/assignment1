@@ -24,7 +24,7 @@ func (h *RateHandler) GetRate(c *gin.Context) {
 
 	data, err := h.Service.GetRate(base, target)
 	if err != nil {
-		RespondError(c, http.StatusNotFound, "Rate not found or fetch failed")
+		RespondError(c, http.StatusNotFound, err.Error())
 		return
 	}
 	RespondSuccess(c, data, "Rate fetched successfully")
