@@ -39,12 +39,13 @@ func Initialize() *App {
 		Expiry:              time.Duration(cfg.CacheExpiry) * time.Second,
 		Cache:               c,
 		BackgroundTaskTimer: cfg.BackgroundTaskTimer,
+		GlobalBaseCurrency:  cfg.GlobalBaseCurrency,
 	}
 
 	r := gin.Default()
 	r.Use(middleware.Logger())
 
-	handlers.RegisterRoutes(r, svc)
+	api.RegisterRoutes(r, svc)
 
 	return &App{
 		Config:  cfg,

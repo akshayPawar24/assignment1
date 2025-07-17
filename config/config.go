@@ -18,12 +18,20 @@ type Config struct {
 	RedisPassword       string
 	RedisDB             int
 	BackgroundTaskTimer time.Duration
+	GlobalBaseCurrency  string
 }
 
 func Load() *Config {
-	err := godotenv.Load()
+	env := os.Getenv("APP_ENV")
+	envFile := ".env"
+	if env != "" && env != "development" {
+		envFile = ".env." + env
+	}
+	err := godotenv.Load(envFile)
 	if err != nil {
-		log.Println("No .env file found, using environment variables")
+		log.Printf("No %s file found, using environment variables", envFile)
+	} else {
+		log.Printf("Loaded environment variables from %s", envFile)
 	}
 
 	redisDB, _ := strconv.Atoi(os.Getenv("REDIS_DB"))
@@ -42,6 +50,7 @@ func Load() *Config {
 		RedisPassword:       os.Getenv("REDIS_PASSWORD"),
 		RedisDB:             redisDB,
 		BackgroundTaskTimer: time.Duration(taskTimer),
+		GlobalBaseCurrency:  os.Getenv("GLOBAL_BASE_CURRENCY"),
 	}
 
 	return config

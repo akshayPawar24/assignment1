@@ -9,5 +9,8 @@ func main() {
 
 	app.Service.StartBackgroundSync()
 
-	app.Router.Run(":" + app.Config.Port)
+	err := app.Router.Run(":" + app.Config.Port)
+	if err != nil {
+		return
+	}
 }
