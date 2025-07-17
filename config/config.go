@@ -18,6 +18,7 @@ type Config struct {
 	RedisPassword       string
 	RedisDB             int
 	BackgroundTaskTimer time.Duration
+	GlobalBaseCurrency  string
 }
 
 func Load() *Config {
@@ -42,6 +43,7 @@ func Load() *Config {
 		RedisPassword:       os.Getenv("REDIS_PASSWORD"),
 		RedisDB:             redisDB,
 		BackgroundTaskTimer: time.Duration(taskTimer),
+		GlobalBaseCurrency:  os.Getenv("GLOBAL_BASE_CURRENCY"),
 	}
 
 	return config
