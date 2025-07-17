@@ -142,7 +142,7 @@ func (rs *RateService) calculateCrossRateFromRates(usdToBase, usdToTarget models
 	return rate
 }
 
-// Use this method if you want to get the rates on demand from the API
+// Use this method if you want to get the rates on demand from the API Provider
 func (rs *RateService) getRateFromProvider(base, target string) (models.Rate, error) {
 	log.Printf("Provider Call: Fetching rates from external API for %s_%s", base, target)
 	rates, err := rs.Provider.GetRates()
@@ -233,7 +233,6 @@ func (rs *RateService) syncToCache(rates map[string]models.Rate) {
 func (rs *RateService) syncToDB(rates map[string]models.Rate) {
 	log.Printf("DB Sync: Syncing %d rates to database", len(rates))
 	for _, rate := range rates {
-		//rate.UpdatedAt = time.Now().Unix()
 		db.DB.Clauses(
 			clause.OnConflict{
 				Columns:   []clause.Column{{Name: "base"}, {Name: "target"}},
