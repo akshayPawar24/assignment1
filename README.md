@@ -73,7 +73,9 @@ GLOBAL_BASE_CURRENCY=USD
 ### Running the Application
 
 ```sh
-go run cmd/main.go
+APP_ENV=development go run cmd/main.go //for dev
+APP_ENV=beta go run cmd/main.go //for beta
+APP_ENV=production go run cmd/main.go //for production
 ```
 
 The service will start, auto-migrate the database, and begin serving requests.
