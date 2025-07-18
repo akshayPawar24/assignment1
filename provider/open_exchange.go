@@ -4,12 +4,12 @@ import (
 	"assignment1/models"
 	"encoding/json"
 	"net/http"
-	"time"
 )
 
 type OpenExchangeProvider struct {
-	URL   string
-	AppId string
+	URL     string
+	AppId   string
+	Adapter ProviderAdapter
 }
 
 type apiResponse struct {
@@ -18,36 +18,25 @@ type apiResponse struct {
 	Time  int64              `json:"timestamp"`
 }
 
-func (o *OpenExchangeProvider) GetRates() (map[string]models.Rate, error) {
+func (o *OpenExchangeProvider) fetchRawRates() (*apiResponse, error) {
 	resp, err := http.Get(o.URL + o.AppId)
-
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
 
 	var data apiResponse
-
 	err = json.NewDecoder(resp.Body).Decode(&data)
-
 	if err != nil {
 		return nil, err
 	}
+	return &data, nil
+}
 
-	updateTime := time.Now().Unix()
-
-	rates := make(map[string]models.Rate)
-
-	for code, val := range data.Rates {
-		key := data.Base + "_" + code
-		rates[key] = models.Rate{
-			Rate:      val,
-			Base:      data.Base,
-			Target:    code,
-			UpdatedAt: updateTime,
-		}
+func (o *OpenExchangeProvider) GetRates() (map[string]models.Rate, error) {
+	data, err := o.fetchRawRates()
+	if err != nil {
+		return nil, err
 	}
-
-	return rates, nil
+	return o.Adapter.Adapt(data)
 }
