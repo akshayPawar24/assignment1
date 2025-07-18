@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  app:
+    image: yourdockerhubuser/yourapp:prod-20240601
+    build: # (optional, if you want to build in prod)
+      context: .
+    environment:
+      - PORT=8080
+      - DATABASE_URL=postgres://produser:prodpass@prod-db-host:5432/proddb?sslmode=require
+      - REDIS_ADDR=prod-redis-host:6379
+      - REDIS_PASSWORD=prodredispassword
+      - REDIS_DB=0
+      - CACHE_EXPIRY_SECONDS=300
+      - BACKGROUND_TASK_TIMER=60
+      - OPENEXCHANGE_URL=https://openexchangerates.org/api
+      - OPENEXCHANGE_APP_ID=prod_app_id
+      - GLOBAL_BASE_CURRENCY=USD
+    depends_on: []
+    restart: unless-stopped
+
+  db:
+    deploy:
+      replicas: 1
+
+  redis:
+    deploy:
+      replicas: 1

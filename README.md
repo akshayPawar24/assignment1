@@ -70,7 +70,7 @@ GLOBAL_BASE_CURRENCY=USD
 - `BACKGROUND_TASK_TIMER`: Minutes between background syncs
 - `GLOBAL_BASE_CURRENCY`: Usually `USD`
 
-### Running the Application
+### Running the Application Locally
 
 ```sh
 APP_ENV=development go run cmd/main.go //for dev
@@ -79,6 +79,51 @@ APP_ENV=production go run cmd/main.go //for production
 ```
 
 The service will start, auto-migrate the database, and begin serving requests.
+
+---
+
+## Docker Usage
+
+You can run the entire application stack (Go app, PostgreSQL, Redis) using Docker and Docker Compose.
+
+### Build and Run with Docker
+
+1. **Build the Docker image:**
+   ```sh
+   docker build -t assignment1-go-app .
+   ```
+2. **Run the container:**
+   ```sh
+   docker run --env-file .env -p 8080:8080 assignment1-go-app
+   ```
+
+### Using Docker Compose (Recommended for Local Dev)
+
+1. **Start all services (app, db, redis):**
+   ```sh
+   docker-compose up --build
+   ```
+   This will build the Go app, start PostgreSQL and Redis, and link them together.
+
+2. **Stop all services:**
+   ```sh
+   docker-compose down
+   ```
+
+- The app will be available at `http://localhost:8080`.
+- Database and Redis data are persisted in Docker volumes (`pgdata`, `redisdata`).
+
+### Production Deployment
+
+- Use `docker-compose.prod.yml` for production settings. Update the image name and environment variables as needed.
+- Example:
+  ```sh
+  docker-compose -f docker-compose.prod.yml up -d
+  ```
+
+### .dockerignore
+
+The `.dockerignore` file excludes unnecessary files (binaries, git, editor configs, etc.) from the Docker build context for faster and smaller builds.
 
 ## API Usage
 
@@ -149,12 +194,18 @@ assignment1/
 | UpdatedAt | int64   | Last update (epoch time)   |
 
 ## Caching
-- **In-memory**: Fast, local cache (default in code, see `cache/memory_cache.go`)
-- **Redis**: Distributed cache for multi-instance deployments (see `cache/redis_cache.go`)
+- **In-memory**: Fast, local cache (see `cache/memory_cache.go`)
+- **Redis**: Distributed cache for multi-instance deployments (default in code, see `cache/redis_cache.go`)
 
 ## Provider Integration
 - Default: [Open Exchange Rates](https://openexchangerates.org/)
 - Easily extendable via the `RateProvider` interface
+
+## Adapter Pattern in Provider Layer
+
+The provider layer uses the **Adapter Pattern** to allow integration with multiple external exchange rate APIs in a consistent way. This is achieved via the `ProviderAdapter` interface:
+
+This design allows you to add new providers by implementing the `ProviderAdapter` interface, without changing the rest of the codebase.
 
 ## Logging
 - All requests and important service actions are logged to stdout
