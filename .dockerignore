@@ -1,0 +1,18 @@
+# Binaries
+server
+
+# OS files
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Editor configs
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Env files (optional, unless you want to copy .env)
+.env.* 

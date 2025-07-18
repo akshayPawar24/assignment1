@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    container_name: assignment1_go_app
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/assignment1?sslmode=disable
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      - CACHE_EXPIRY_SECONDS=300
+      - BACKGROUND_TASK_TIMER=5
+      - OPENEXCHANGE_URL=https://openexchangerates.org/api/latest.json?app_id=
+      - OPENEXCHANGE_APP_ID=YOUR_APP_ID
+      - GLOBAL_BASE_CURRENCY=USD
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: assignment1
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata: 
