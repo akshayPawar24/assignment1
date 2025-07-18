@@ -8,8 +8,9 @@ import (
 	"assignment1/middleware"
 	"assignment1/provider"
 	"assignment1/service"
-	"github.com/gin-gonic/gin"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type App struct {
@@ -24,8 +25,9 @@ func Initialize() *App {
 	db.Connect(cfg.DBUrl)
 
 	prov := &provider.OpenExchangeProvider{
-		URL:   cfg.ExchangeURL,
-		AppId: cfg.ExchangeAppId,
+		URL:     cfg.ExchangeURL,
+		AppId:   cfg.ExchangeAppId,
+		Adapter: &provider.OpenExchangeAdapter{},
 	}
 
 	// For in-memory:
