@@ -5,6 +5,7 @@ services:
     container_name: assignment1_go_app
     ports:
       - "8080:8080"
+      - "50051:50051"
     environment:
       - PORT=8080
       - DATABASE_URL=postgres://postgres:postgres@db:5432/assignment1?sslmode=disable
