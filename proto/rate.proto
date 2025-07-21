@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package rate;
+
+option go_package = "grpc/proto;ratepb";
+
+service RateService {
+  rpc GetRate (GetRateRequest) returns (GetRateResponse) {}
+}
+
+message GetRateRequest {
+  string base = 1;
+  string target = 2;
+}
+
+message GetRateResponse {
+  string base = 1;
+  string target = 2;
+  double rate = 3;
+  int64 updated_at = 4;
+  string error = 5;
+} 

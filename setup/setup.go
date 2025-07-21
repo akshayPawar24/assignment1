@@ -5,9 +5,13 @@ import (
 	"assignment1/cache"
 	"assignment1/config"
 	"assignment1/db"
+	ratepb "assignment1/grpc/proto"
 	"assignment1/middleware"
 	"assignment1/provider"
 	"assignment1/service"
+	"google.golang.org/grpc"
+	"log"
+	"net"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -48,6 +52,19 @@ func Initialize() *App {
 	r.Use(middleware.Logger())
 
 	api.RegisterRoutes(r, svc)
+
+	go func() {
+		lis, err := net.Listen("tcp", ":"+cfg.GRPCPort)
+		if err != nil {
+			log.Fatalf("failed to listen: %v", err)
+		}
+		grpcServer := grpc.NewServer()
+		ratepb.RegisterRateServiceServer(grpcServer, api.NewRateGRPCServer(svc))
+		log.Printf("gRPC server listening on %s", ":"+cfg.GRPCPort)
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("failed to serve gRPC: %v", err)
+		}
+	}()
 
 	return &App{
 		Config:  cfg,

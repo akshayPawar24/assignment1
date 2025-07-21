@@ -19,6 +19,7 @@ type Config struct {
 	RedisDB             int
 	BackgroundTaskTimer time.Duration
 	GlobalBaseCurrency  string
+	GRPCPort            string
 }
 
 func Load() *Config {
@@ -51,6 +52,7 @@ func Load() *Config {
 		RedisDB:             redisDB,
 		BackgroundTaskTimer: time.Duration(taskTimer),
 		GlobalBaseCurrency:  os.Getenv("GLOBAL_BASE_CURRENCY"),
+		GRPCPort:            os.Getenv("GRPC_PORT"),
 	}
 
 	return config
