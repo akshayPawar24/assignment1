@@ -214,3 +214,88 @@ This design allows you to add new providers by implementing the `ProviderAdapter
 ## Background Sync
 - Periodically fetches and updates rates from the provider to DB and cache
 - Interval controlled by `BACKGROUND_TASK_TIMER` env variable
+
+## gRPC API
+
+This service also exposes a gRPC API for fetching currency exchange rates, suitable for high-performance or non-HTTP clients.
+
+### Proto Definition
+
+The gRPC service is defined in [`proto/rate.proto`](proto/rate.proto):
+
+```proto
+syntax = "proto3";
+
+package rate;
+
+option go_package = "grpc/proto;ratepb";
+
+service RateService {
+  rpc GetRate (GetRateRequest) returns (GetRateResponse) {}
+}
+
+message GetRateRequest {
+  string base = 1;
+  string target = 2;
+}
+
+message GetRateResponse {
+  string base = 1;
+  string target = 2;
+  double rate = 3;
+  int64 updated_at = 4;
+  string error = 5;
+}
+```
+
+### Generating Go Code from Proto
+
+To generate/update the Go code for the gRPC service, run:
+
+```sh
+protoc --go_out=. --go-grpc_out=. proto/rate.proto
+```
+
+This will update the generated files in `grpc/proto/`.
+
+- Requires [`protoc`](https://grpc.io/docs/protoc-installation/) and the Go plugins:
+  ```sh
+  go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+  ```
+  Ensure `$GOPATH/bin` is in your `$PATH`.
+
+### Running the gRPC Server
+
+The gRPC server is started automatically alongside the HTTP server. It listens on the port specified by the `GRPC_PORT` environment variable (default: `50051`).
+
+Set in your `.env` or environment:
+```
+GRPC_PORT=50051
+```
+
+### gRPC Endpoint
+
+- **Service:** `RateService`
+- **Method:** `GetRate`
+- **Request:**
+  - `base` (string): Base currency code (e.g., `USD`)
+  - `target` (string): Target currency code (e.g., `EUR`)
+- **Response:**
+  - `base` (string)
+  - `target` (string)
+  - `rate` (double)
+  - `updated_at` (int64)
+  - `error` (string, optional)
+
+### Example: Calling with grpcurl
+
+You can test the gRPC API using [`grpcurl`](https://github.com/fullstorydev/grpcurl`):
+
+```sh
+grpcurl -plaintext -d '{"base":"USD","target":"EUR"}' localhost:50051 rate.RateService/GetRate
+```
+
+### Notes
+- The gRPC server runs concurrently with the HTTP server.
+- See `api/rate_grpc_server.go` and `setup/setup.go` for implementation details.
